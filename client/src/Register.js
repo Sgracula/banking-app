@@ -1,0 +1,73 @@
+// client/src/Register.js
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; 
+import { FormContainer, FormLabel, FormInput, FormButton, ErrorMessage } from './styles';
+
+
+function Register() {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate(); 
+
+    const handleRegister = async () => {
+        // Clear the error when the user tries to register again
+        setError('');
+        try {
+            // Send a request to your backend to register the user
+            const response = await fetch('http://localhost:3001/api/register', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ username, password }),
+            });
+      
+            if (response.ok) {
+              console.log('User registered successfully');
+              navigate('/login'); 
+            // Redirect or perform any other actions upon successful registration
+            } else {
+              const data = await response.json();
+              console.error('Error registering user:', data.message);
+            }
+          } catch (error) {
+            console.error('Error registering user:', error);
+          }
+        // Form validation logic
+        if (!username || !password) {
+            setError('Please fill in all fields');
+            return;
+        }    
+    };
+
+    return (
+        <FormContainer>
+            <h2>Register</h2>
+            <FormLabel htmlFor="username">Username:</FormLabel>
+            <FormInput
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+            />
+
+            <FormLabel htmlFor="password">Password:</FormLabel>
+            <FormInput
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <FormButton type="submit" onClick={handleRegister}>
+                Register
+            </FormButton>
+
+            {error && <ErrorMessage>{error}</ErrorMessage>}
+        </FormContainer>
+    );
+};
+
+export default Register;
